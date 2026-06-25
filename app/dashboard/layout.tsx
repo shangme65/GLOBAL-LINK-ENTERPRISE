@@ -65,9 +65,10 @@ export default function DashboardLayout({
   return (
     <div className="min-h-screen flex">
       {/* Sidebar */}
-      <AnimatePresence>
+      <AnimatePresence mode="wait">
         {(sidebarOpen || isDesktop) && (
           <motion.aside
+            key="sidebar"
             initial={{ x: -300 }}
             animate={{ x: 0 }}
             exit={{ x: -300 }}
