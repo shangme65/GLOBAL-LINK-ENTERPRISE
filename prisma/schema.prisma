@@ -1,0 +1,72 @@
+// This is your Prisma schema file
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  name          String?
+  password      String
+  role          String    @default("user") // user, admin
+  company       String?
+  phone         String?
+  address       String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  shipments     Shipment[]
+  notifications Notification[]
+}
+
+model Shipment {
+  id              String   @id @default(cuid())
+  trackingNumber  String   @unique
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  origin          String
+  destination     String
+  status          String   @default("pending") // pending, in-transit, delivered, cancelled
+  weight          Float
+  dimensions      String
+  description     String?
+  
+  estimatedDelivery DateTime?
+  actualDelivery    DateTime?
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  trackingHistory TrackingHistory[]
+}
+
+model TrackingHistory {
+  id          String   @id @default(cuid())
+  shipmentId  String
+  shipment    Shipment @relation(fields: [shipmentId], references: [id], onDelete: Cascade)
+  
+  status      String
+  location    String
+  description String
+  timestamp   DateTime @default(now())
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  title     String
+  message   String
+  read      Boolean  @default(false)
+  type      String   @default("info") // info, success, warning, error
+  
+  createdAt DateTime @default(now())
+}
