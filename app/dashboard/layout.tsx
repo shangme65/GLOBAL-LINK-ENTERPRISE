@@ -56,24 +56,22 @@ export default function DashboardLayout({
   }
 
   const menuItems = [
-    { icon: <FaHome />, label: "Dashboard", href: "/dashboard" },
-    { icon: <FaShippingFast />, label: "Shipments", href: "/dashboard/shipments" },
-    { icon: <FaBell />, label: "Notifications", href: "/dashboard/notifications" },
-    { icon: <FaUser />, label: "Profile", href: "/dashboard/profile" },
+    { icon: FaHome, label: "Dashboard", href: "/dashboard" },
+    { icon: FaShippingFast, label: "Shipments", href: "/dashboard/shipments" },
+    { icon: FaBell, label: "Notifications", href: "/dashboard/notifications" },
+    { icon: FaUser, label: "Profile", href: "/dashboard/profile" },
   ];
 
   return (
     <div className="min-h-screen flex">
       {/* Sidebar */}
-      <AnimatePresence mode="wait">
-        {(sidebarOpen || isDesktop) && (
-          <motion.aside
-            key="sidebar"
-            initial={{ x: -300 }}
-            animate={{ x: 0 }}
-            exit={{ x: -300 }}
-            className="fixed md:static inset-y-0 left-0 z-50 w-64 glass-effect md:block"
-          >
+      {(sidebarOpen || isDesktop) && (
+        <motion.aside
+          initial={{ x: -300 }}
+          animate={{ x: 0 }}
+          exit={{ x: -300 }}
+          className="fixed md:static inset-y-0 left-0 z-50 w-64 glass-effect md:block"
+        >
             <div className="flex flex-col h-full p-6">
               <div className="flex items-center justify-between mb-8">
                 <div className="flex items-center space-x-2">
@@ -89,17 +87,20 @@ export default function DashboardLayout({
               </div>
 
               <nav className="flex-1 space-y-2">
-                {menuItems.map((item) => (
-                  <Link key={item.href} href={item.href}>
-                    <motion.div
-                      whileHover={{ x: 5 }}
-                      className="flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-primary-50 hover:text-primary-600 transition-colors cursor-pointer"
-                    >
-                      <span className="text-xl">{item.icon}</span>
-                      <span className="font-medium">{item.label}</span>
-                    </motion.div>
-                  </Link>
-                ))}
+                {menuItems.map((item) => {
+                  const IconComponent = item.icon;
+                  return (
+                    <Link key={item.href} href={item.href}>
+                      <motion.div
+                        whileHover={{ x: 5 }}
+                        className="flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-primary-50 hover:text-primary-600 transition-colors cursor-pointer"
+                      >
+                        <IconComponent className="text-xl" />
+                        <span className="font-medium">{item.label}</span>
+                      </motion.div>
+                    </Link>
+                  );
+                })}
               </nav>
 
               <div className="border-t border-gray-200 pt-4">
@@ -119,9 +120,8 @@ export default function DashboardLayout({
                 </motion.button>
               </div>
             </div>
-          </motion.div>
+          </motion.aside>
         )}
-      </AnimatePresence>
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col min-h-screen">
