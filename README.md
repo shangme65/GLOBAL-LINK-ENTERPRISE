@@ -18,7 +18,7 @@ A production-ready security and shipping platform built with Next.js 14, featuri
 - 👤 **User Profiles** - Comprehensive user management
 - 🎭 **Advanced Animations** - Powered by Framer Motion
 - 🎯 **Type-Safe** - Built with TypeScript for reliability
-- 🗄️ **Database Integration** - Prisma ORM with SQLite/PostgreSQL
+- 🗄️ **Database Integration** - Prisma ORM with PostgreSQL
 
 ## 🛠️ Technology Stack
 
@@ -27,7 +27,7 @@ A production-ready security and shipping platform built with Next.js 14, featuri
 - **Styling**: Tailwind CSS
 - **Animations**: Framer Motion
 - **Authentication**: NextAuth.js
-- **Database**: Prisma ORM
+- **Database**: Prisma ORM with PostgreSQL
 - **Validation**: Zod
 - **Icons**: React Icons
 - **Security**: bcryptjs for password hashing
@@ -55,12 +55,19 @@ npm install
 
 ### 3. Set Up Environment Variables
 
-The `.env.local` file is already configured for development. For production, update the following:
+Copy `.env.example` to `.env` and update with your values:
 
 ```env
-DATABASE_URL="file:./dev.db"  # For production, use PostgreSQL
-NEXTAUTH_URL=http://localhost:3000  # Update to your production URL
-NEXTAUTH_SECRET=your-super-secret-key-change-this-in-production
+# Database - Use PostgreSQL (Neon, Supabase, Railway, etc.)
+DATABASE_URL="postgresql://username:password@host:port/database?sslmode=require"
+
+# NextAuth - Generate secret: openssl rand -base64 32
+NEXTAUTH_URL=https://your-app.vercel.app
+NEXTAUTH_SECRET=your-generated-secret-key
+
+# App Configuration
+NEXT_PUBLIC_APP_NAME=Global Link Enterprise
+NEXT_PUBLIC_APP_URL=https://your-app.vercel.app
 ```
 
 ### 4. Initialize Database
@@ -69,7 +76,10 @@ NEXTAUTH_SECRET=your-super-secret-key-change-this-in-production
 # Generate Prisma Client
 npx prisma generate
 
-# Create database and run migrations
+# Push schema to database (for production databases)
+npx prisma db push
+
+# Or run migrations (for development)
 npx prisma migrate dev --name init
 
 # (Optional) Open Prisma Studio to view database
@@ -244,26 +254,60 @@ npx prisma studio
 
 ### Vercel (Recommended)
 
-1. Push code to GitHub
-2. Import project in Vercel
-3. Configure environment variables
-4. Deploy
+1. **Push code to GitHub**
+   ```bash
+   git add .
+   git commit -m "Ready for deployment"
+   git push origin main
+   ```
+
+2. **Import project in Vercel**
+   - Go to [Vercel](https://vercel.com)
+   - Click "New Project"
+   - Import your GitHub repository
+
+3. **Configure environment variables**
+   Add these in Vercel Project Settings → Environment Variables:
+   ```env
+   DATABASE_URL="postgresql://user:password@host:port/database?sslmode=require"
+   NEXTAUTH_URL="https://your-app.vercel.app"
+   NEXTAUTH_SECRET="your-generated-secret-key"
+   NEXT_PUBLIC_APP_NAME="Global Link Enterprise"
+   NEXT_PUBLIC_APP_URL="https://your-app.vercel.app"
+   ```
+   
+   > 💡 **Tip**: Generate a secure secret: `openssl rand -base64 32`
+
+4. **Deploy**
+   - Click "Deploy"
+   - Wait for build to complete
+   - Your app will be live!
+
+### Database Setup (Neon PostgreSQL)
+
+1. **Create a Neon database**
+   - Go to [Neon.tech](https://neon.tech)
+   - Create a new project
+   - Copy your connection string
+
+2. **Add to Vercel**
+   - Paste connection string as `DATABASE_URL` in Vercel
+
+3. **Initialize schema**
+   ```bash
+   # From your local terminal with DATABASE_URL set
+   npx prisma db push
+   ```
 
 ### Environment Variables for Production
 
 ```env
-DATABASE_URL="postgresql://user:password@host:port/database"
+DATABASE_URL="postgresql://user:password@host:port/database?sslmode=require"
 NEXTAUTH_URL="https://yourdomain.com"
 NEXTAUTH_SECRET="your-production-secret-key"
+NEXT_PUBLIC_APP_NAME="Global Link Enterprise"
+NEXT_PUBLIC_APP_URL="https://yourdomain.com"
 ```
-
-### Database Migration
-
-For production with PostgreSQL:
-
-1. Update `DATABASE_URL` in `.env.local`
-2. Run migrations: `npx prisma migrate deploy`
-3. Generate client: `npx prisma generate`
 
 ## 📊 Features Overview
 
