@@ -6,8 +6,8 @@ export default withAuth(
     const token = req.nextauth.token;
     const path = req.nextUrl.pathname;
 
-    // Check if user is trying to access admin routes
-    if (path.startsWith("/admin")) {
+    // Check if user is trying to access admin routes (except setup page)
+    if (path.startsWith("/admin") && path !== "/admin/setup") {
       // User must be admin
       if (token?.role !== "ADMIN") {
         return NextResponse.redirect(new URL("/", req.url));
@@ -21,8 +21,8 @@ export default withAuth(
       authorized: ({ token, req }) => {
         const path = req.nextUrl.pathname;
         
-        // Admin dashboard is accessible without auth for initialization
-        if (path === "/admin/dashboard" || path === "/admin") {
+        // Admin setup and dashboard are accessible without auth for initialization
+        if (path === "/admin/setup" || path === "/admin/dashboard" || path === "/admin") {
           return true;
         }
 
