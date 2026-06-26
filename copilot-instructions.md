@@ -167,9 +167,9 @@ EMAIL_USER="your-email@gmail.com"
 EMAIL_PASSWORD="your-app-password"
 
 # Admin Account (First-time initialization)
-ADMIN_EMAIL="admin@example.com"
-ADMIN_PASSWORD="secure-password-min-8-chars"
-ADMIN_NAME="Administrator"
+ORIGIN_ADMIN_EMAIL="admin@example.com"
+ORIGIN_ADMIN_PASSWORD="secure-password-min-8-chars"
+ORIGIN_ADMIN_NAME="Administrator"
 ```
 
 ### Adding New Environment Variables

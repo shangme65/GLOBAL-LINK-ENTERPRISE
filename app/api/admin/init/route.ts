@@ -37,13 +37,13 @@ export async function POST() {
     }
 
     // Read admin credentials from environment variables
-    const adminEmail = process.env.ADMIN_EMAIL;
-    const adminPassword = process.env.ADMIN_PASSWORD;
-    const adminName = process.env.ADMIN_NAME || "Administrator";
+    const adminEmail = process.env.ORIGIN_ADMIN_EMAIL;
+    const adminPassword = process.env.ORIGIN_ADMIN_PASSWORD;
+    const adminName = process.env.ORIGIN_ADMIN_NAME || "Administrator";
 
     if (!adminEmail || !adminPassword) {
       return NextResponse.json(
-        { error: "Admin credentials not configured in environment variables. Please set ADMIN_EMAIL and ADMIN_PASSWORD in .env file." },
+        { error: "Admin credentials not configured in environment variables. Please set ORIGIN_ADMIN_EMAIL and ORIGIN_ADMIN_PASSWORD in .env file." },
         { status: 500 }
       );
     }
@@ -63,7 +63,7 @@ export async function POST() {
 
     if (existingUser) {
       return NextResponse.json(
-        { error: "Email already registered. Please use a different ADMIN_EMAIL in .env" },
+        { error: "Email already registered. Please use a different ORIGIN_ADMIN_EMAIL in .env" },
         { status: 400 }
       );
     }
@@ -91,11 +91,71 @@ export async function POST() {
     return NextResponse.json({
       message: "Admin account created successfully",
       admin,
+      credentials: {
+        email: adminEmail,
+        password: adminPassword, // Send plain password for auto-login
+      },
     });
   } catch (error) {
     console.error("Admin initialization error:", error);
     return NextResponse.json(
       { error: "Failed to create admin account" },
+      { status: 500 }
+    );
+  }
+}
+
+// Delete admin account and all related data
+export async function DELETE() {
+  try {
+    // Find the admin account
+    const admin = await prisma.user.findFirst({
+      where: { role: "ADMIN" },
+    });
+
+    if (!admin) {
+      return NextResponse.json(
+        { error: "No admin account found" },
+        { status: 404 }
+      );
+    }
+
+    // Delete all admin-related data in a transaction
+    await prisma.$transaction(async (tx) => {
+      // Delete admin's notifications
+      await tx.notification.deleteMany({
+        where: { userId: admin.id },
+      });
+
+      // Delete admin's shipments and their tracking history
+      const adminShipments = await tx.shipment.findMany({
+        where: { userId: admin.id },
+        select: { id: true },
+      });
+
+      for (const shipment of adminShipments) {
+        await tx.trackingHistory.deleteMany({
+          where: { shipmentId: shipment.id },
+        });
+      }
+
+      await tx.shipment.deleteMany({
+        where: { userId: admin.id },
+      });
+
+      // Delete the admin user
+      await tx.user.delete({
+        where: { id: admin.id },
+      });
+    });
+
+    return NextResponse.json({
+      message: "Admin account and all related data deleted successfully",
+    });
+  } catch (error) {
+    console.error("Admin deletion error:", error);
+    return NextResponse.json(
+      { error: "Failed to delete admin account" },
       { status: 500 }
     );
   }
