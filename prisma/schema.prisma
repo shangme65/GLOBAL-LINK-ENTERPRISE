@@ -9,17 +9,26 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum UserRole {
+  USER
+  ADMIN
+}
+
 model User {
-  id            String    @id @default(cuid())
-  email         String    @unique
-  name          String?
-  password      String
-  role          String    @default("user") // user, admin
-  company       String?
-  phone         String?
-  address       String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  id                    String    @id @default(cuid())
+  email                 String    @unique
+  name                  String?
+  password              String
+  role                  UserRole  @default(USER)
+  company               String?
+  phone                 String?
+  address               String?
+  isEmailVerified       Boolean   @default(false)
+  emailVerificationToken String?
+  emailVerificationExpiry DateTime?
+  isInitialAdmin        Boolean   @default(false) // Track first-time admin setup
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
   
   shipments     Shipment[]
   notifications Notification[]

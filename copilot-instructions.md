@@ -144,6 +144,45 @@ export async function POST(req: NextRequest) {
 - Hash passwords with bcryptjs
 - Use NextAuth for session management
 
+## Environment Variables
+
+### Critical Rule: Always Edit .env (Not .env.example)
+**IMPORTANT**: When adding or modifying environment variables:
+- ✅ **ALWAYS** edit the actual `.env` file directly
+- ❌ **NEVER** edit only `.env.example` file
+- `.env.example` is a template for documentation purposes only
+- Real configuration changes must be in `.env` to take effect
+
+### Required Environment Variables
+```env
+# Database
+DATABASE_URL="postgresql://..."
+
+# NextAuth
+NEXTAUTH_URL="http://localhost:3000"
+NEXTAUTH_SECRET="generate-with-openssl-rand-base64-32"
+
+# Email Configuration
+EMAIL_USER="your-email@gmail.com"
+EMAIL_PASSWORD="your-app-password"
+
+# Admin Account (First-time initialization)
+ADMIN_EMAIL="admin@example.com"
+ADMIN_PASSWORD="secure-password-min-8-chars"
+ADMIN_NAME="Administrator"
+```
+
+### Adding New Environment Variables
+1. Add to `.env` file first (real configuration)
+2. Add to `.env.example` file second (template for others)
+3. Update this documentation
+4. Restart dev server to load changes
+
+### Accessing Environment Variables
+- Server-side: `process.env.VARIABLE_NAME`
+- Client-side: `process.env.NEXT_PUBLIC_VARIABLE_NAME`
+- Always check if variable exists before using
+
 ## Authentication Flow
 1. User registers via `/api/auth/register`
 2. Password is hashed and stored
