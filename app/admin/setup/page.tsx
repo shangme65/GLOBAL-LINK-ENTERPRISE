@@ -50,11 +50,13 @@ export default function AdminSetupPage() {
     setSuccess("");
 
     try {
+      console.log("Sending POST to /api/admin/init...");
       const response = await fetch("/api/admin/init", {
         method: "POST",
       });
 
       const data = await response.json();
+      console.log("Response data:", data);
 
       if (!response.ok) {
         throw new Error(data.error || "Failed to initialize admin account");
@@ -65,24 +67,36 @@ export default function AdminSetupPage() {
 
       // Auto-login with the credentials
       if (data.credentials) {
+        console.log("Attempting auto-login with credentials...");
         const result = await signIn("credentials", {
           email: data.credentials.email,
           password: data.credentials.password,
           redirect: false,
         });
 
+        console.log("SignIn result:", result);
+
         if (result?.ok) {
+          console.log("Login successful, redirecting to dashboard...");
           setTimeout(() => {
             router.push("/admin/dashboard");
           }, 1500);
         } else {
+          console.error("Login failed:", result?.error);
           setError("Account created but auto-login failed. Please login manually.");
           setTimeout(() => {
             router.push("/auth/login");
           }, 2000);
         }
+      } else {
+        console.error("No credentials returned from API");
+        setError("Account created but no credentials returned. Please login manually.");
+        setTimeout(() => {
+          router.push("/auth/login");
+        }, 2000);
       }
     } catch (error: any) {
+      console.error("Initialization error:", error);
       setError(error.message || "Failed to initialize admin account");
     } finally {
       setInitializing(false);
@@ -271,6 +285,24 @@ export default function AdminSetupPage() {
                 </>
               )}
             </motion.button>
+
+            {/* Login Button - Show when admin exists but user not logged in */}
+            {adminInitialized && !isAdmin && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mt-4"
+              >
+                <Link
+                  href="/auth/login"
+                  className="w-full py-3 sm:py-4 px-4 sm:px-6 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2 sm:gap-3 text-base sm:text-lg"
+                >
+                  <FaUser />
+                  Login as Admin
+                  <FaArrowRight />
+                </Link>
+              </motion.div>
+            )}
           </div>
 
           {/* Delete Section */}

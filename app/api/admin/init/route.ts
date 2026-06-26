@@ -23,11 +23,17 @@ export async function GET() {
 
 // Initialize first admin account from environment variables
 export async function POST() {
+  console.log("=== Admin Init POST Request Started ===");
+  
   try {
+    console.log("Checking for existing admin...");
+    
     // Check if admin already exists
     const existingAdmin = await prisma.user.findFirst({
       where: { role: "ADMIN" },
     });
+    
+    console.log("Existing admin check result:", existingAdmin ? "Found" : "Not found");
 
     if (existingAdmin) {
       return NextResponse.json(
@@ -40,6 +46,12 @@ export async function POST() {
     const adminEmail = process.env.ORIGIN_ADMIN_EMAIL;
     const adminPassword = process.env.ORIGIN_ADMIN_PASSWORD;
     const adminName = process.env.ORIGIN_ADMIN_NAME || "Administrator";
+    
+    console.log("Environment variables:", {
+      hasEmail: !!adminEmail,
+      hasPassword: !!adminPassword,
+      name: adminName
+    });
 
     if (!adminEmail || !adminPassword) {
       return NextResponse.json(
@@ -57,9 +69,12 @@ export async function POST() {
     }
 
     // Check if email is already taken
+    console.log("Checking if email is already registered...");
     const existingUser = await prisma.user.findUnique({
       where: { email: adminEmail },
     });
+    
+    console.log("Email check result:", existingUser ? "Already exists" : "Available");
 
     if (existingUser) {
       return NextResponse.json(
@@ -69,7 +84,10 @@ export async function POST() {
     }
 
     // Create admin user
+    console.log("Creating admin user...");
     const hashedPassword = await hash(adminPassword, 12);
+    console.log("Password hashed successfully");
+    
     const admin = await prisma.user.create({
       data: {
         email: adminEmail,
@@ -87,6 +105,8 @@ export async function POST() {
         createdAt: true,
       },
     });
+    
+    console.log("Admin user created successfully:", admin.id);
 
     return NextResponse.json({
       message: "Admin account created successfully",
@@ -98,8 +118,18 @@ export async function POST() {
     });
   } catch (error) {
     console.error("Admin initialization error:", error);
+    
+    // Log detailed error for debugging
+    if (error instanceof Error) {
+      console.error("Error message:", error.message);
+      console.error("Error stack:", error.stack);
+    }
+    
     return NextResponse.json(
-      { error: "Failed to create admin account" },
+      { 
+        error: "Failed to create admin account",
+        details: error instanceof Error ? error.message : "Unknown error"
+      },
       { status: 500 }
     );
   }
